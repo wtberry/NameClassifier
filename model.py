@@ -63,7 +63,8 @@ class NameClassifier(object):
     def predict(self, names):
         name_vector = self.vectorizer.transform(names)
         # .predict
-        return self.model.predict(name_vector)
+        print('returning list')
+        return self.model.predict(name_vector).tolist()
 
     def evaluate(self, names, labels):
         '''

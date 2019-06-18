@@ -10,7 +10,7 @@ This class utilizes libraries, such as
 - pandas
 - pickle
 - ... more??
-So make sure all of these packages are installed, and are correct version as well.
+So make sure all of these packages are installed, as well as thier dependencies. 
 
 ## How to use??
 This class can be imported within a python script, or interpreter.
