@@ -54,16 +54,15 @@ class NameClassifier(object):
 
     def train(self, X_train, y_train):
         # fit the vectorizer
+        print('Fitting the vectorizer and training the model...')
         X_train = self.vectorizer.fit_transform(X_train)
         # train the ML model
-        print('training the model....')
         self.model.fit(X_train, y_train)
         print('training completed!')
 
     def predict(self, names):
         name_vector = self.vectorizer.transform(names)
         # .predict
-        print('returning list')
         return self.model.predict(name_vector).tolist()
 
     def evaluate(self, names, labels):
