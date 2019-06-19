@@ -29,7 +29,7 @@ class NameClassifier(object):
     def __init__(self):
         # declaire the model variables, classifier (clf) and vectorizer, if training new one
         self.model = MultinomialNB()
-        self.vectorizer = CountVectorizer()
+       
     
     ### Some utility functions for data preprocess etc
     # load data from csv on pandas, not tied to class
@@ -55,13 +55,14 @@ class NameClassifier(object):
     def train(self, X_train, y_train):
         # fit the vectorizer
         print('Fitting the vectorizer and training the model...')
-        X_train = self.vectorizer.fit_transform(X_train)
+        self.vec = CountVectorizer().fit(X_train)
+        self.word_vec = self.vec.transform(X_train)
         # train the ML model
-        self.model.fit(X_train, y_train)
+        self.model.fit(self.word_vec, y_train)
         print('training completed!')
 
     def predict(self, names):
-        name_vector = self.vectorizer.transform(names)
+        name_vector = self.vec.transform(names)
         # .predict
         return self.model.predict(name_vector).tolist()
 
@@ -79,6 +80,35 @@ class NameClassifier(object):
         recall = TP/(TP + FN)
 
         return {'accuracy':acc, 'precision':precision, 'recall':recall}
+
+    def get_word_dict(self, corpus=None):
+        '''This method returns word frequency dictionary, from the training data
+        of the model or given corpus if any.
+
+        Params:
+            corpus(list/Series): python list or pandas series of names.This is default to
+            None, in which case frequency dictionary is created on the data the model was trained on.
+
+        Returns: 
+            dictionary: python dictionary with names as keys, and their frequencies as values.
+        '''
+        freq_dic = {}
+        if corpus is None:
+            vector = self.vec
+            bag_words = self.word_vec
+        else:
+            vector = CountVectorizer().fit(corpus)
+            bag_words = vector.transform(corpus)
+
+        feature = vector.get_feature_names()
+        sum_words = bag_words.sum(axis=0).tolist()[0] # list within list
+        
+        for i, word in enumerate(feature):
+            freq_dic[word] = sum_words[i]
+
+        return freq_dic
+
+
 
     @staticmethod
     def measure(pred, label):
