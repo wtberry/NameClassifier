@@ -43,7 +43,6 @@ class NameClassifier(object):
         @jp_names & f_names:String - full path to the data file, including train & testdataset
         return: x_train, x_test(as pandas series of names), y_train, y_test(as numpy arr of labels)
         '''
-        # データを読み込みラベルを追加
         jp = pd.read_csv(jp_names)
         fr = pd.read_csv(f_names)
         jp['label'] = int(1)
