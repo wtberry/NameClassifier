@@ -2,6 +2,10 @@
 from sklearn.naive_bayes import MultinomialNB
 from sklearn.feature_extraction.text import CountVectorizer
 from sklearn.model_selection import train_test_split
+from sklearn.preprocessing import OrdinalEncoder
+from sklearn.metrics import confusion_matrix
+import matplotlib.pyplot as plt
+import numpy as np
 import pandas as pd
 import pickle
 
@@ -30,11 +34,9 @@ class NameClassifier(object):
         # declaire the model variables, classifier (clf) and vectorizer, if training new one
         self.model = MultinomialNB()
        
-    
     ### Some utility functions for data preprocess etc
     # load data from csv on pandas, not tied to class
-    @staticmethod
-    def load_data(jp_names, f_names, test_size=0.3):
+    def load_data(self, file_name, test_size=0.3):
         '''
         - load jp_names, f_names csv as pandas database, add labels,
         - combine japanese & english names
@@ -43,13 +45,12 @@ class NameClassifier(object):
         @jp_names & f_names:String - full path to the data file, including train & testdataset
         return: x_train, x_test(as pandas series of names), y_train, y_test(as numpy arr of labels)
         '''
-        jp = pd.read_csv(jp_names)
-        fr = pd.read_csv(f_names)
-        jp['label'] = int(1)
-        fr['label'] = int(0)
-        data = pd.concat([jp, fr], axis=0)
+        df = pd.read_csv(file_name)
+        labels = df['code'].values.reshape(-1, 1)
+        self.label_encoder = OrdinalEncoder().fit(labels)
+        labels = self.label_encoder.transform(labels)
 
-        return train_test_split(data['name'], data['label'].values, test_size=test_size, shuffle=True)
+        return train_test_split(df['name'], labels.ravel(), test_size=test_size, shuffle=True)
 
     def train(self, X_train, y_train):
         # fit the vectorizer
@@ -63,7 +64,7 @@ class NameClassifier(object):
     def predict(self, names):
         name_vector = self.vec.transform(names)
         # .predict
-        return self.model.predict(name_vector).tolist()
+        return self.model.predict(name_vector)
 
     def evaluate(self, names, labels):
         '''
@@ -71,14 +72,15 @@ class NameClassifier(object):
          - accuracy, precision, recall
         '''
         prediction = self.predict(names)
-        TP, FP, TN, FN = self.measure(prediction, labels)
+        #TP, FP, TN, FN = self.measure(prediction, labels)
         acc = (prediction == labels).mean()
         # precision
-        precision = TP/(TP + FP)
+        #precision = TP/(TP + FP)
         # recall
-        recall = TP/(TP + FN)
+        #recall = TP/(TP + FN)
 
-        return {'accuracy':acc, 'precision':precision, 'recall':recall}
+        return acc
+        #return {'accuracy':acc, 'precision':precision, 'recall':recall}
 
     def get_word_dict(self, corpus=None):
         '''This method returns word frequency dictionary, from the training data
@@ -107,8 +109,28 @@ class NameClassifier(object):
 
         return freq_dic
 
+    def plot_confusion(self, yt, prediction_test):
+        self.cm = confusion_matrix(yt, prediction_test)
+        fig = plt.figure(figsize=(10, 8))
+        plt.imshow(self.cm, interpolation='nearest')
+        plt.colorbar()
+        axis_font = {'size': 13, 'color':'black'}
+        self.cat = self.label_encoder.categories_[0]
+        num_class = len(self.cat)
+        classNames = [self.cat[i] for i in range(num_class)]
+        plt.title("Confusion Matrix by class", fontdict=axis_font)
+        plt.ylabel("True Label", fontdict=axis_font)
+        plt.xlabel("Predicted Label", fontdict=axis_font)
+        tick_marks = np.arange(len(classNames))
+        plt.xticks(tick_marks, classNames, rotation=45)
+        plt.yticks(tick_marks, classNames)
+        fdic = {'size':10, 'color':'white', 'weight':'heavy'}
+        for i in range(num_class):
+            for j in range(num_class):
+                plt.text(j, i, str(self.cm[i, j]), fontdict=fdic, horizontalalignment='center',verticalalignment='center')
+        plt.show()
 
-
+    '''
     @staticmethod
     def measure(pred, label):
         # Calculate TP, FP, TN, FN for precision and recall
@@ -123,6 +145,7 @@ class NameClassifier(object):
             if pred[i] == 0 and label[i] ==1: 
                 FN +=1 
         return TP, FP, TN, FN 
+    '''
         
 
     @classmethod

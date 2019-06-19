@@ -1,7 +1,7 @@
 # Name Classifier Module/Class
 
-This module (class) is a NameClassifier class, and it classifies if a person's name string is Japanese or not. It's based on 
-Naive Bayes algorithm, impletented with scikit-learn package. 
+This module (class) is a NameClassifier class, and it classifies where a person's name originated from. 
+Naive Bayes algorithm is used and impletented with scikit-learn package. 
 It's still in a development / prototyping phase, and might have some error / bug.
 
 ## Dependencies
@@ -19,6 +19,9 @@ There are 2 main use cases,
 2. You want to load pre-trained model, and deploy it. 
 
 ### 1. Train your own
+1. edit `region_list.txt` to add or remove the country of your choice, from [Faker documentation](https://faker.readthedocs.io/en/master/)
+2. generate the data using `create_data.py`, specifying output and country list file name
+3. trian, predict, test and visualize using the module from `model.py`
 
 ### 2. Pre-trained Model
 
