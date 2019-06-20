@@ -3,3 +3,8 @@
 !*.py
 !*.md
 !*.ipynb
+!data/
+data/*
+!data/*.csv
+!data/*.py
+
