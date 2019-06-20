@@ -1,0 +1,13 @@
+code,country
+ar_EG,Arabic (Egypt)
+en_US,English (United States)
+es_ES,Spanish (Spain)
+fr_FR,French
+ko_KR,Korean
+no_NO,Norwegian
+pt_BR,Portuguese (Brazil)
+ru_RU,Russian
+jp_JP,Japanese
+zh_CN,Chinese (China)
+
+
