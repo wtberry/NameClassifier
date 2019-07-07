@@ -27,7 +27,7 @@ There are 2 main use cases,
 1. import NameClassifier from model.py
 2. use `.load_model(fileName.pickle)` method to load the model`
 
-### 3. Files
+## Files
 - Multi Class Name Classification with Naive Bayes.ipynb
 	* goes over how to perform multiclass name classification with NameClassifier class.
 - Name Classification with Naive Bayes.ipyn
