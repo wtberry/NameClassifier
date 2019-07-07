@@ -23,11 +23,27 @@ There are 2 main use cases,
 2. generate the data using `create_data.py`, specifying output and country list file name
 3. trian, predict, test and visualize using the module from `model.py`
 
-### 2. Pre-trained Modelhttps://faker.readthedocs.io/en/master/
-https://faker.readthedocs.io/en/master/
-## List of methods and attributeshttps://faker.readthedocs.io/en/master/
-https://faker.readthedocs.io/en/master/
-### Methodshttps://faker.readthedocs.io/en/master/
+### 2. Pre-trained Model
+1. import NameClassifier from model.py
+2. use `.load_model(fileName.pickle)` method to load the model`
+
+### 3. Files
+- Multi Class Name Classification with Naive Bayes.ipynb
+	* goes over how to perform multiclass name classification with NameClassifier class.
+- Name Classification with Naive Bayes.ipyn
+	* binary classification for Japanese and non-Japanese name
+- NameClassifier チュートリアル.ipynb
+	* same as above, in Japanese
+- model.py
+	* the module file for NameClassifier
+- prep_data.py
+	* practice writing data preprocessing class
+- preprocess.py
+	* practice data preprocessing
+- test.py
+	* testing script for module.py
+## List of methods and attributes
+### Methods
 - \__init__https://faker.readthedocs.io/en/master/
     - instantiate the class when training from scratchhttps://faker.readthedocs.io/en/master/.
     
