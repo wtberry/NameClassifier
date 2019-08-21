@@ -1,7 +1,7 @@
 # Name Classifier Module/Class
 
-This module (class) is a NameClassifier class, and it classifies if a person's name string is Japanese or not. It's based on 
-Naive Bayes algorithm, impletented with scikit-learn package. 
+This module (class) is a NameClassifier class, and it classifies where a person's name originated from. 
+Naive Bayes algorithm is used and impletented with scikit-learn package. 
 It's still in a development / prototyping phase, and might have some error / bug.
 
 ## Dependencies
@@ -19,16 +19,35 @@ There are 2 main use cases,
 2. You want to load pre-trained model, and deploy it. 
 
 ### 1. Train your own
+1. edit `region_list.txt` to add or remove the country of your choice, from [Faker documentation](https://faker.readthedocs.io/en/master/)'s locale region codes and country names.
+2. generate the data using `create_data.py`, specifying output and country list file name
+3. trian, predict, test and visualize using the module from `model.py`
 
 ### 2. Pre-trained Model
+1. import NameClassifier from model.py
+2. use `.load_model(fileName.pickle)` method to load the model`
 
+## Files
+- Multi Class Name Classification with Naive Bayes.ipynb
+	* goes over how to perform multiclass name classification with NameClassifier class.
+- Name Classification with Naive Bayes.ipyn
+	* binary classification for Japanese and non-Japanese name
+- NameClassifier チュートリアル.ipynb
+	* same as above, in Japanese
+- model.py
+	* the module file for NameClassifier
+- prep_data.py
+	* practice writing data preprocessing class
+- preprocess.py
+	* practice data preprocessing
+- test.py
+	* testing script for module.py
 ## List of methods and attributes
-
 ### Methods
-- \__init__
-    - instantiate the class when training from scratch.
+- \__init__https://faker.readthedocs.io/en/master/
+    - instantiate the class when training from scratchhttps://faker.readthedocs.io/en/master/.
     
-- load_data() (static)
+- load_data()
     - given file names, load the data as pandas Dataframe, add column for label, and split the data into train and test set.
         - params:
             - jp_names(str): file name and full path to csv, containing Japanese names.
@@ -56,15 +75,18 @@ There are 2 main use cases,
         - labels(ndarray): of name strings, label
     - returns: 
         - dictionary: dictionary of model accuray, precision and recall.
-- measure (static)
-    - utility methods for in-class use, calclate True&Flase Positive&Negative
+
+- plot_confusion
+    - plots the confusion matrix with provided test data
     - param:
-        - pred(list/ndarray): predicted values
-        - label(ndarray): label/ground truth
+        - yt(ndarray): ground truth labels
+        - prediction_test(ndarray): predicted labels, integer
+
 - load_model
     - Load the saved model from pickle file
     - Param:
         - file_name(str): the file name of the model you want to load, including the path to the file,
+        
 - save_model(self, file_name)
     - Saves the class using pickle. 
     - Params:

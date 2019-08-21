@@ -9,4 +9,3 @@ data/*
 !data/*.py
 !data/*.txt
 data/fore*.csv
-

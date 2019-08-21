@@ -7,11 +7,11 @@ with Faker library
 from faker import Faker
 import pandas as pd
 
-def create_jp_name(num=100):
+def create_jp_name(num=100, fileName='jp_names.csv'):
 
     fake = Faker('jp_JP')
     
-    f = open('jp_names.csv', "w")
+    f = open(fileName, "w")
     f.write('code,name\n')
     for _ in range(num):
         name = fake.name()
