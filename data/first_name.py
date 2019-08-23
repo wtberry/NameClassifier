@@ -5,7 +5,7 @@ between 2004 - 2017
 
 Recording it as Key-Value style database
 """
-
+import json
 import requests
 from bs4 import BeautifulSoup as bs
 import csv
@@ -60,7 +60,18 @@ def get_names(rows):
             sys.exit()
         
         global gender_name
-        gender_name.append({"rank":rank, "fname":fname.strip(), "Population":int(pop.strip("人")), "perc":float(perc.strip("%"))})
+        # checkin the data if it's valid
+        try:
+            pop = int(pop.strip("人"))
+        except:
+            pop = None
+
+        # checkin the data if it's valid
+        try:
+            perc = float(perc.strip("%"))
+        except:
+            perc = None
+        gender_name.append({"rank":rank, "fname":fname.strip(), "Population":pop, "perc":perc})
 
 
 #rows = tables[0].find_all('tr')
@@ -80,6 +91,7 @@ def get_gender_name(gender):
 
 
 def get_year_name(year):
+    """get year from 2004 - 2011"""
     URL = "https://www.meijiyasuda.co.jp/enjoy/ranking-{}/best100/".format(year)
 
     soup = load_soup(URL)
@@ -89,9 +101,83 @@ def get_year_name(year):
     name_dic = {}
     name_dic['male'] = get_gender_name(gender_table[0])
     name_dic['female'] = get_gender_name(gender_table[1])
-    return name_dic
+    return name_dic, URL
+
+def get_name_from_list(URL):
+    """For 2012 - 2017, provided with name's list, iter though and put in dictionary"""
+    soup = load_soup(URL)
+    table_list = soup.find_all('table')[0].text.split('\n\n\n\n')[1:]
+    name_list = [row.split('\n') for row in table_list] # split at new line, 2D list
+    # iter through each row and put info in the dic
+    count = 0
+    gender_name = []
+    for row in name_list:
+        if len(row) == 4:
+            rank, fname, pop, perc = count, row[1], row[2], row[3]
+             # checkin the data if it's valid
+            try:
+                pop = int(pop.strip("人"))
+            except:
+                pop = None
+            # checkin the data if it's valid
+            try:
+                perc = float(perc.strip("%"))
+            except:
+                perc = None
+
+            gender_name.append({"rank":rank, "fname":fname.strip(), "Population":pop, "perc":perc})
+        
+    # put the list in the dictionary
+    return gender_name
+
+def get_year_name_later(year):
+    """get year from 2012 - 2017""" 
+    print(year)
+    result = {}
+    genders = ['boy', 'girl']
+    for gender in genders:
+        URL = "https://www.meijiyasuda.co.jp/enjoy/ranking-{}/best100/{}.html".format(year, gender)
+        result[gender] = get_name_from_list(URL)
+    return result, URL
+
+        
+    
+
+
+    #gender_table = soup.find_all("div", {"class":"rankingTableContainer"}) 
+    #name_dic = {}
+    #print("geder table length: ", len(gender_table))
+    #name_dic['male'] = get_gender_name(gender_table[0])
+    #name_dic['female'] = get_gender_name(gender_table[1])
+    #return name_dic, URL
+
+
 
 year_name = {}
 for y in range(2004, 2018):
-    # 2004~2017 with this format
-    year_name[str(y)] = get_year_name(y)
+    if y < 2012:
+        # 2004 - 2011
+        year_name[str(y)], URL = get_year_name(y)
+    else:
+        # then they changed format kindly, for 2012 - 2017
+        year_name[str(y)], URL = get_year_name_later(y)
+    
+    print(y, "done")
+
+# newest year, assuming as 2018
+genders = ['boy', 'girl']
+result = {}
+for gender in genders:
+    URL = "https://www.meijiyasuda.co.jp/enjoy/ranking/best100/{}.html".format(gender)
+    result[gender] = get_name_from_list(URL)
+year_name['2018'] = result
+
+# now write to json
+with open("first_name.json", "w", encoding='utf8') as fp:
+    json.dump(year_name, fp)
+
+# 2004 ~ 2011 in the original
+
+# 2012 ~ 2017 in secondary
+
+# 2018??
