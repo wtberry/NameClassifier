@@ -37,21 +37,22 @@ def load_soup(URL):
         return bs(r.content, 'lxml')
 
 
-def get_names(rows, is_top_table=True):
+def get_names(rows):
     """input is a collection of rows in one table"""
-    if is_top_table:
-        for row in rows:
-            row=row.find_all("td")
+
+    # Design
+    """ executing if - else for index within the loop does not slow down the parsing too much"""
+    for row in rows:
+        row=row.find_all("td")
+        if len(row)==5:
             rank, fname, pop, perc = row[0].text, row[2].text, row[3].text, row[4].text
             print(rank, fname, pop, perc)
-    elif not is_top_table:
-        for row in rows:
-            row = row.find_all('td')
+        elif len(row)==4:
             rank, fname, pop, perc = row[0].text, row[1].text, row[2].text, row[3].text
             print(rank, fname, pop, perc)
-    else:
-        print("invalid name table size, check the website at: ", URL)
-        sys.exit()
+        else:
+            print("invalid name table size, check the website at: ", URL)
+            sys.exit()
 
 year = 2004 # 2004~2017 with this format
 URL = "https://www.meijiyasuda.co.jp/enjoy/ranking-{}/best100/".format(year)
@@ -71,6 +72,6 @@ def get_gender_name(gender):
     """
     tables = gender.find_all("tbody")
     get_names(tables[0].find_all('tr'))
-    get_names(tables[1].find_all('tr'), is_top_table=False)
+    get_names(tables[1].find_all('tr'))
 
 #row = rows[0].find_all('td')
