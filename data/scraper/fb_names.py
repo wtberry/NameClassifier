@@ -3,7 +3,7 @@ import time
 import pandas as pd
 import selenium
 from selenium import webdriver
-import ray
+#import ray
 
 """Using selenium web browser driver, 
 This script will search for the facebook profiles from last name list on the 
@@ -39,22 +39,23 @@ scroll = "window.scrollTo(0, document.body.scrollHeight);"
 # scroll numbre is the index of the list
 
 # start the multiprocessing lib ray
-ray.shutdown()
-ray.init()
-
-@ray.remote(num_cpus=4)
-def scrape_write(last, pause=1, NUM=100):
+#ray.shutdown()
+#ray.init()
+#
+#@ray.remote(num_cpus=4)
+def scrape_write(browser, last, CAPTCHA=False, pause=1, NUM=100):
     """
     Access facebook through selenium wtih given URL  and search for profiles of given last name, and write the list of names on the txt file, under
     fb_names/*txt
     Param:
-        NOT PASSING THIS anymore,browser: selenium chrome webdriver, browser to access the fb
+        selenium chrome webdriver, browser to access the fb
+        CAPTCHA: wait until human solve the CAPTCHA
         last: last name string to look up
         pause: pause time (float/int) between scrolling further for more result on search page
         NUM: int, how many times to scroll the search page
     """
 
-    browser = webdriver.Chrome()
+    #browser = webdriver.Chrome()
     URL_temp = "https://ja-jp.facebook.com/public/"
     URL = URL_temp+last    
 
@@ -63,6 +64,11 @@ def scrape_write(last, pause=1, NUM=100):
     #browser = webdriver.Chrome()
     # refresh page
     browser.get(URL)
+
+    # wait for the turing test to be solved
+    if is_captcha(browser) == True:
+        input("Press any key when you're done with Turing test")
+
     print(browser.title)
 
     lastHeight = browser.execute_script(return_height)
@@ -100,7 +106,18 @@ def scrape_write(last, pause=1, NUM=100):
             print("saving: ", name)
             writer.writerow([name])
     f.close()
-    browser.close()
+    #browser.close()
+
+
+def is_captcha(browser):
+    """Given the browser instance after they did the browser.get(URL),
+    Will invetigate and return if it is captcha or not
+    """
+    try:
+        browser.find_element_by_id("captcha")
+        return True
+    except NoSuchElementException:
+        return False
 
 
 
@@ -115,9 +132,15 @@ print("starting stopwatch")
 start = time.time()
 
 ## Open browser and start scraping
-for last in lasts:
-    tags = scrape_write.remote(last, pause=1, NUM=NUM)
-    #tags = scrape_write(last, pause=1, NUM=5)
+browser = webdriver.Chrome()
+for i, last in enumerate(lasts[0:6668]): # 0~6667
+    if i == 0:
+        tags = scrape_write(browser, last, pause=1, CAPTCHA=True, NUM=NUM)
+    else:
+        #tags = scrape_write.remote(last, pause=1, NUM=NUM)
+        tags = scrape_write(browser, last, pause=1, NUM=NUM)
+
+browser.close()
 
 # done scraping, display the time spent
 
