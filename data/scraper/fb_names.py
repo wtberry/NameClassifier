@@ -1,8 +1,10 @@
 import csv
+import subprocess as s
 import time
 import pandas as pd
 import selenium
 from selenium import webdriver
+from selenium.common.exceptions import *
 #import ray
 
 """Using selenium web browser driver, 
@@ -20,8 +22,7 @@ Param:
 Look up the populations of FB users in Japan, and 
 see how many profiles I need to sample, in order to get statistically correct sample.
 
-And combine it with the data of ratio of last names to determine how many results are needed
-for each given last names. 
+And combine it with the data of ratio of last names to determine how many results are needed for each given last names. 
 
 last_name_sample_size = Total_fb_usr * sample_rate * last_name_ratio
 
@@ -43,13 +44,12 @@ scroll = "window.scrollTo(0, document.body.scrollHeight);"
 #ray.init()
 #
 #@ray.remote(num_cpus=4)
-def scrape_write(browser, last, CAPTCHA=False, pause=1, NUM=100):
+def scrape_write(browser, last, pause=1, NUM=100):
     """
     Access facebook through selenium wtih given URL  and search for profiles of given last name, and write the list of names on the txt file, under
     fb_names/*txt
     Param:
         selenium chrome webdriver, browser to access the fb
-        CAPTCHA: wait until human solve the CAPTCHA
         last: last name string to look up
         pause: pause time (float/int) between scrolling further for more result on search page
         NUM: int, how many times to scroll the search page
@@ -67,6 +67,9 @@ def scrape_write(browser, last, CAPTCHA=False, pause=1, NUM=100):
 
     # wait for the turing test to be solved
     if is_captcha(browser) == True:
+        # notify the humans to solve it
+        s.call(['notify-send', 'CAPTCHA DETECTED!', str(last)])
+
         input("Press any key when you're done with Turing test")
 
     print(browser.title)
@@ -79,13 +82,13 @@ def scrape_write(browser, last, CAPTCHA=False, pause=1, NUM=100):
         browser.execute_script(scroll)
         time.sleep(pause)
         newHeight = browser.execute_script(return_height)
-        # check if it's the bottom of the page
-        """
-        if newHeight == lastHeight:
-            break
-        """
+        # check if it's the bottom of the page, every five scroll
+        if i%5 == 0:
+            if is_bottom(browser):
+                print("end of result at ", i)
+                break
         lastHeight = newHeight
-        print(i)
+        print(last, i)
     # get the names from the entire scrolled page
     tags = browser.find_elements_by_tag_name("span")
     
@@ -119,6 +122,15 @@ def is_captcha(browser):
     except NoSuchElementException:
         return False
 
+def is_bottom(browser):
+    """given browser instance, while scrolling see if it's the end
+    of the result
+    """
+    try:
+        browser.find_element_by_id("browse_end_of_results_footer")
+        return True
+    except NoSuchElementException:
+        return False
 
 
 ## Read in the last name data
@@ -133,12 +145,9 @@ start = time.time()
 
 ## Open browser and start scraping
 browser = webdriver.Chrome()
-for i, last in enumerate(lasts[0:6668]): # 0~6667
-    if i == 0:
-        tags = scrape_write(browser, last, pause=1, CAPTCHA=True, NUM=NUM)
-    else:
-        #tags = scrape_write.remote(last, pause=1, NUM=NUM)
-        tags = scrape_write(browser, last, pause=1, NUM=NUM)
+for last in lasts[0:6668]: # 0~6667
+    #tags = scrape_write.remote(last, pause=1, NUM=NUM)
+    tags = scrape_write(browser, last, pause=1, NUM=NUM)
 
 browser.close()
 
