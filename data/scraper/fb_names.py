@@ -91,7 +91,7 @@ def scrape_write(browser, last, pause=1, NUM=100):
         print(last, i)
     # get the names from the entire scrolled page
     tags = browser.find_elements_by_tag_name("span")
-    
+    print("Num of names: ", len(tags)) 
     fileName = "fb_names/{}_names.txt".format(last)
     # now open and write on file
     f = open(fileName, 'a')
@@ -145,8 +145,9 @@ start = time.time()
 
 ## Open browser and start scraping
 browser = webdriver.Chrome()
-for last in lasts[0:6668]: # 0~6667
+for last in lasts[195:6668]: # 0~6667
     #tags = scrape_write.remote(last, pause=1, NUM=NUM)
+     
     tags = scrape_write(browser, last, pause=1, NUM=NUM)
 
 browser.close()
