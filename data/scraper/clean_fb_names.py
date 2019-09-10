@@ -82,10 +82,39 @@ df['first'] = df['first'].str.strip()
 ## now extract the unique first name list with kanji
 first_name_list = list(df[df['first_char'] == 'kanji']['first'].unique())
 
+"""
+clean up the list for the last time
+Some entries contains random name that are not related to given last name, therefore contains
+full name. For this we'll split the name by white space, then
+if length == 2, then maintain the last index as first name. 
+if longer, discard.
+"""
+
+#f_name_list = []
+# First logic
+#for i, name in enumerate(first_name_list):
+#    n_list = name.split()
+#    if len(n_list) == 1:
+#        f_name_list.append(name)
+#    elif len(n_list) == 2:
+#        f_name_list.append(n_list[-1])
+#
+# second logic for comprehension
+#for i, name in enumerate(first_name_list):
+#    n_list = name.split()
+#    if len(n_list) < 3:
+#        if len(n_list) == 1:
+#            f_name_list.append(name)
+#        else:
+#            f_name_list.append(n_list[-1])
+
+f_name_list = [name if len(name.split()) == 1 else name.split()[-1] for name in first_name_list if len(name.split()) < 3 and len(name.split()) > 0]
+
+
 # write on csv
 f = open("first_name_list.csv", "w")
 writer = csv.writer(f)
-for name in first_name_list:
+for name in f_name_list:
     writer.writerow([name])
 
 df.to_csv("all_names.csv", index=False)
