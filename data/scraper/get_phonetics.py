@@ -3,6 +3,9 @@ This script reads in the list of first names in kanji, and
 look up their phonetic letters in hiragana, as well as sex
 
 - URL: https://b-name.jp/赤ちゃん名前辞典
+- if not found on the above, then fall back to..
+- URL2: https://kanji.reader.bz/
+- URL3: http://name.m3q.jp/list?g=&s={}
 - when collected, it'll save it in a dictionary with key of the name, and 
 value as [] of phonetics.
 """
@@ -131,6 +134,50 @@ def Baby_name(idx, name):
 
             return result
 
+### THis part is no longer developed
+"""
+def baby_name_two(idx, name):
+
+    #GO to the last resort, bname website, and get the name
+    #If not found, return empty
+
+    URL_temp = "http://name.m3q.jp/list?g=&s={}"
+    URL = URL_temp.format(name)
+    print("Getting phonetics for {} at baby name 2...".format(name))
+    soup = load_soup(URL)
+
+    if soup == None:
+        return [[idx, name, "Error", "UNK"]]
+
+    else:
+        # check if the name exist on the website
+        not_found = "見つかりませんでした"
+        h4 = soup.find('h4')
+        if not_found in h4.text:
+            print("{} was not found on Baby name web...".format(name))
+            return None
+
+        else:
+            # get the name table
+            name_table = soup.select('tr[class*="no-"]')
+            # iterate it and get the info
+            result = {'index':[], 'first_name':[], 'hira':[], 'gender':[], 'roman':[], 'kata':[]}
+            for row in name_table:
+                gender = row.find('i').get("class")[0][5:]
+                kanji = row.text.split("\n")[8]
+                phonetic = row.text.split("\n")[5]
+                #result.append([idx, name, phonetic, gender])
+                result['index'].append(idx)
+                result['first_name'].append(name)
+                result['hira'].append(phonetic)
+                result['gender'].append(gender)
+                result['roman'].append("NF")
+                result['kata'].append("NF")
+
+
+            return result
+
+"""
 
 def record_row(result, writer):
     """
